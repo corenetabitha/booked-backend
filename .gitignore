@@ -1,23 +1,51 @@
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 
+# Virtual environments
 env/
 venv/
 ENV/
 .venv/
-.env/
+.venv.local
+.venv.development.local
+.venv.test.local
+.venv.production.local
 
-.vscode/
+# Django
 **/migrations/*.pyc
 **/migrations/__pycache__/
 db.sqlite3
+secrets.json
+
+# Environment files
 *.env
 .env.local
 .env.*
 
-secrets.json
+# Logs
 *.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Node
+node_modules/
+.pnp/
+.pnp.js
+build/
+dist/
+
+# Editor & OS
+.vscode/
+.idea/
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
+*~
+
+# Lock files (optional depending on workflow)
 Pipfile.lock
