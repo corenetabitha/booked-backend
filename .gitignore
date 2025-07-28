@@ -1,3 +1,4 @@
+```
 # Python
 __pycache__/
 *.py[cod]
@@ -19,8 +20,9 @@ ENV/
 db.sqlite3
 secrets.json
 
-# Environment files
+# Environment variables
 *.env
+.env
 .env.local
 .env.*
 
@@ -35,17 +37,23 @@ yarn-error.log*
 node_modules/
 .pnp/
 .pnp.js
+
+# Build
 build/
 dist/
 
-# Editor & OS
+# IDE/editor folders
 .vscode/
 .idea/
+
+# OS-specific
 .DS_Store
 Thumbs.db
+
+# Swap/backup files
 *.swp
 *.swo
 *~
 
-# Lock files (optional depending on workflow)
 Pipfile.lock
+```
