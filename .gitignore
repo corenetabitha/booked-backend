@@ -16,6 +16,7 @@ ENV/
 db.sqlite3
 secrets.json
 *.env
+.env
 .env.local
 .env.*
 *.log
@@ -27,15 +28,21 @@ yarn-error.log*
 node_modules/
 .pnp/
 .pnp.js
+
+
 build/
 dist/
 
 .vscode/
 .idea/
+
+
 .DS_Store
 Thumbs.db
+
 *.swp
 *.swo
 *~
 
 Pipfile.lock
+```
