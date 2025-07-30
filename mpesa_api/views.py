@@ -10,26 +10,32 @@ class MpesaCheckoutView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        phone_number = request.data.get('phone')
-        amount = request.data.get('amount')
-        cart_items_data = request.data.get('cart_items')
+        data = request.data
+        phone_number = data.get('phone')
+        pin = data.get('pin')
+        amount = data.get('amount')
+        cart_items_data = data.get('cart_items')
 
-        if not phone_number or not amount or not cart_items_data:
-            return Response({"detail": "Phone number, amount, and cart items are required."},
-                            status=status.HTTP_400_BAD_REQUEST)
+        if not phone_number or not pin or not amount or not cart_items_data:
+            return Response(
+                {"detail": "Phone, PIN, amount, and cart items are required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         try:
             amount = float(amount)
             if amount <= 0:
-                raise ValueError("Amount must be positive.")
-        except (ValueError, TypeError):
-            return Response({"detail": "Invalid amount."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail": "Amount must be a positive number."}, status=status.HTTP_400_BAD_REQUEST)
+        except ValueError:
+            return Response({"detail": "Invalid amount format."}, status=status.HTTP_400_BAD_REQUEST)
+
+        
+        if pin != "1234":
+            return Response({"detail": "Incorrect M-Pesa PIN."}, status=status.HTTP_403_FORBIDDEN)
 
         user = request.user
 
         try:
-            print(f"Initiating M-Pesa STK push for {phone_number} with amount {amount}")
-
             with transaction.atomic():
                 order = Order.objects.create(
                     user=user,
@@ -37,14 +43,24 @@ class MpesaCheckoutView(APIView):
                     status='Pending'
                 )
 
-                for item_data in cart_items_data:
-                    book_id = item_data.get('book_id')
-                    quantity = item_data.get('quantity', 1)
+                for item in cart_items_data:
+                    book_id = item.get('book_id')
+                    quantity = item.get('quantity', 1)
+
+                    if not book_id:
+                        raise ValueError("Missing book_id in cart item.")
 
                     book = get_object_or_404(Book, id=book_id, is_available_for_purchase=True)
 
+                    try:
+                        quantity = int(quantity)
+                        if quantity <= 0:
+                            raise ValueError()
+                    except:
+                        raise ValueError(f"Invalid quantity for '{book.title}'.")
+
                     if book.stock_count < quantity:
-                        raise ValueError(f"Not enough stock for '{book.title}'. Available: {book.stock_count}, Requested: {quantity}")
+                        raise ValueError(f"Not enough stock for '{book.title}'.")
 
                     OrderItem.objects.create(
                         order=order,
@@ -52,6 +68,7 @@ class MpesaCheckoutView(APIView):
                         quantity=quantity,
                         price_at_purchase=book.price
                     )
+
                     book.stock_count -= quantity
                     book.save()
 
@@ -59,14 +76,14 @@ class MpesaCheckoutView(APIView):
                 order.save()
 
             return Response(
-                {"message": "M-Pesa payment initiated and order created successfully (simulation). Please complete payment on your phone.",
-                 "order_id": order.id},
-                status=status.HTTP_200_OK
+                {"message": "Payment successful with PIN. Order created.", "order_id": order.id},
+                status=status.HTTP_201_CREATED
             )
 
-        except ValueError as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except ValueError as ve:
+            return Response({"detail": str(ve)}, status=status.HTTP_400_BAD_REQUEST)
+
         except Exception as e:
-            print(f"M-Pesa initiation failed: {e}")
-            return Response({"detail": "Failed to initiate M-Pesa payment. Please try again later."},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            print("Unexpected error during checkout:", str(e))
+            return Response({"detail": "Something went wrong. Try again later."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
