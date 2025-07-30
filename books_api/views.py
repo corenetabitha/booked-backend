@@ -9,7 +9,7 @@ from .filters import BookFilter
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all().order_by('name')
     serializer_class = GenreSerializer
-    permission_classes = [permissions.IsAdminUser | permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.AllowAny]#[IsAdminUser | permissions.IsAuthenticatedOrReadOnly]
 
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
