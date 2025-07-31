@@ -29,4 +29,5 @@ class Lending(models.Model):
 
     class Meta:
         ordering = ['-lending_date']
-        unique_together = ('user', 'book', 'status') 
+        unique_together = ('user', 'book')
+ 

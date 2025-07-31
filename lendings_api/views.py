@@ -45,6 +45,22 @@ class LendingViewSet(viewsets.ModelViewSet):
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    
+    @action(detail=True, methods=['patch'], permission_classes=[permissions.IsAuthenticated])
+    def update_status(self, request, pk=None):
+        lending = self.get_object()
+
+        if request.user.role != 'admin':
+            return Response({"detail": "Only admins can update lending status."}, status=status.HTTP_403_FORBIDDEN)
+
+        new_status = request.data.get('status')
+        if new_status not in ['Approved', 'Rejected']:
+            return Response({"detail": "Invalid status."}, status=status.HTTP_400_BAD_REQUEST)
+
+        lending.status = new_status
+        lending.save()
+        return Response({"message": f"Lending request {new_status.lower()}."}, status=status.HTTP_200_OK)
+
 class ReturnRequestView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 

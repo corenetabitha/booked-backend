@@ -22,7 +22,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
-        serializer.save() 
+        serializer.save()
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -37,4 +37,23 @@ class OrderViewSet(viewsets.ModelViewSet):
         return Response({"detail": "Only 'status' field can be updated."},
                         status=status.HTTP_400_BAD_REQUEST)
 
-   
+    
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def approve(self, request, pk=None):
+        order = self.get_object()
+        if request.user.role != 'admin':
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        order.status = 'Approved'
+        order.save()
+        serializer = self.get_serializer(order)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def reject(self, request, pk=None):
+        order = self.get_object()
+        if request.user.role != 'admin':
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+        order.status = 'Rejected'
+        order.save()
+        serializer = self.get_serializer(order)
+        return Response(serializer.data)

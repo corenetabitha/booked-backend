@@ -9,17 +9,18 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'order', 'book', 'book_id', 'quantity', 'price_at_purchase']
-        read_only_fields = ['id', 'order', 'book', 'price_at_purchase']
+        fields = ['id', 'order', 'book', 'book_id', 'quantity', 'price_at_purchase',]
+        read_only_fields = ['id', 'order', 'book', 'price_at_purchase',]
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True)
-    user = UserProfileSerializer(read_only=True)
+    user = UserProfileSerializer(read_only=True) 
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
 
     class Meta:
         model = Order
-        fields = ['id', 'user', 'order_date', 'items']
-        read_only_fields = ['id', 'user', 'order_date']
+        fields = ['id', 'user', 'user_id', 'order_date', 'total_amount', 'status', 'items']
+        read_only_fields = ['id', 'user', 'order_date', 'total_amount', 'status']
 
     def create(self, validated_data):
         order_items_data = validated_data.pop('items')

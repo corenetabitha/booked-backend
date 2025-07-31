@@ -12,8 +12,8 @@ class LendingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lending
-        fields = ['id', 'user', 'book', 'book_id', 'lending_date', 'due_date', 'returned_date']
-        read_only_fields = ['id', 'user', 'book', 'lending_date']
+        fields = ['id', 'user', 'book', 'book_id', 'lending_date', 'due_date', 'returned_date', 'status']
+        read_only_fields = ['id', 'user', 'book', 'lending_date', 'status']
 
     def create(self, validated_data):
         request_user = self.context['request'].user
@@ -51,7 +51,7 @@ class ReturnRequestSerializer(serializers.Serializer):
             instance.returned_date = timezone.now()
             instance.status = 'returned'
         else:
-            instance.returned_date = None  # Optional: clear if un-returning
+            instance.returned_date = None  
         instance.save()
         return instance
 
