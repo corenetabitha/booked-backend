@@ -12,13 +12,12 @@ class MpesaCheckoutView(APIView):
     def post(self, request):
         data = request.data
         phone_number = data.get('phone')
-        pin = data.get('pin')
         amount = data.get('amount')
         cart_items_data = data.get('cart_items')
 
-        if not phone_number or not pin or not amount or not cart_items_data:
+        if not phone_number or not amount or not cart_items_data:
             return Response(
-                {"detail": "Phone, PIN, amount, and cart items are required."},
+                {"detail": "Phone, amount, and cart items are required."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -28,10 +27,6 @@ class MpesaCheckoutView(APIView):
                 return Response({"detail": "Amount must be a positive number."}, status=status.HTTP_400_BAD_REQUEST)
         except ValueError:
             return Response({"detail": "Invalid amount format."}, status=status.HTTP_400_BAD_REQUEST)
-
-        
-        if pin != "1234":
-            return Response({"detail": "Incorrect M-Pesa PIN."}, status=status.HTTP_403_FORBIDDEN)
 
         user = request.user
 
@@ -76,7 +71,7 @@ class MpesaCheckoutView(APIView):
                 order.save()
 
             return Response(
-                {"message": "Payment successful with PIN. Order created.", "order_id": order.id},
+                {"message": "Payment prompt sent. Order created successfully.", "order_id": order.id},
                 status=status.HTTP_201_CREATED
             )
 
@@ -84,6 +79,4 @@ class MpesaCheckoutView(APIView):
             return Response({"detail": str(ve)}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
-            print("Unexpected error during checkout:", str(e))
             return Response({"detail": "Something went wrong. Try again later."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
