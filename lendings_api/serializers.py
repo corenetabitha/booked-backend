@@ -9,10 +9,11 @@ class LendingSerializer(serializers.ModelSerializer):
     book = serializers.StringRelatedField(read_only=True)
     book_id = serializers.PrimaryKeyRelatedField(queryset=Book.objects.all(), write_only=True)
     user = UserProfileSerializer(read_only=True)
+    book_title = serializers.CharField(source='book.title', read_only=True)
 
     class Meta:
         model = Lending
-        fields = ['id', 'user', 'book', 'book_id', 'lending_date', 'due_date', 'returned_date', 'status']
+        fields = ['id', 'user', 'book', 'book_title', 'book_id', 'lending_date', 'due_date', 'returned_date', 'status']
         read_only_fields = ['id', 'user', 'book', 'lending_date', 'status']
 
     def create(self, validated_data):

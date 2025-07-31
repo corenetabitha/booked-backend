@@ -6,17 +6,19 @@ from users_api.serializers import UserProfileSerializer
 class OrderItemSerializer(serializers.ModelSerializer):
     book = serializers.StringRelatedField(read_only=True)
     book_id = serializers.PrimaryKeyRelatedField(queryset=Book.objects.all(), write_only=True)
+    book_title = serializers.CharField(source='book.title', read_only=True)
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'order', 'book', 'book_id', 'quantity', 'price_at_purchase',]
+        fields = ['id', 'order', 'book', 'book_title', 'book_id', 'quantity', 'price_at_purchase',]
         read_only_fields = ['id', 'order', 'book', 'price_at_purchase',]
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True)
     user = UserProfileSerializer(read_only=True) 
     user_id = serializers.IntegerField(source='user.id', read_only=True)
-
+    items = OrderItemSerializer(source='order_items', many=True, read_only=True)
+    
     class Meta:
         model = Order
         fields = ['id', 'user', 'user_id', 'order_date', 'total_amount', 'status', 'items']
