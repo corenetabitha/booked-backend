@@ -4,6 +4,13 @@ This is the backend of **Booked**, an online bookstore application inspired by t
 
 ---
 
+# Frontend Repo
+https://github.com/corenetabitha/project-frontend
+
+# Render Deployment
+https://booked-render.onrender.com/admin
+
+
 ##  Features
 
 ### Admin
