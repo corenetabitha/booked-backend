@@ -1,0 +1,40 @@
+from django.contrib import admin
+from django.urls import path, include
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView,
+)
+from django.http import JsonResponse
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+
+    path('api/', include('books_api.urls')),  
+    path('api/', include('users_api.urls')),    
+    path('api/', include('orders_api.urls')),   
+    path('api/', include('lendings_api.urls')), 
+
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+
+    
+    path('api/', include('mpesa_api.urls')),
+]
+
+
+
+def root_view(request):
+    return JsonResponse({
+        "message": "Welcome to the Booked API ",
+        "available_endpoints": [
+            "/api/books/",
+            "/api/users/",
+            "/api/orders/",
+            "/api/lendings/",
+            "/api/mpesa/",
+            "/api/token/",
+        ]
+    })
+

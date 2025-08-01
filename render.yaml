@@ -1,0 +1,5 @@
+build:
+  commands:
+    - pip install --upgrade pip setuptools wheel
+    - pip install setuptools==68.0.0 wheel
+    - pip install -r requirements.txt
